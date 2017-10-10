@@ -23,10 +23,10 @@ module Y2Storage
   module Proposal
     # Namespace to group the different strategies to plan devices. The planner
     # strategy depends on the format of the proposal settings.
-    module DevicesPlannerStrategies
+    module InitialStrategies
     end
   end
 end
 
-require "y2storage/proposal/devices_planner_strategies/legacy"
-require "y2storage/proposal/devices_planner_strategies/ng"
+require "y2storage/proposal/initial_strategies/legacy"
+# require "y2storage/proposal/initial_strategies/ng"

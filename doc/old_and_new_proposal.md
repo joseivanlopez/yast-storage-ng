@@ -648,7 +648,7 @@ those default settings, it will perform new attempts altering the settings. For
 that, it will follow the `disable_order` for each volume with that field.
 
 In the first iteration, it will look for the lowest number there. If
-`adjust_by_swap` is optional in that volume and enabled, it will disable it. If
+`adjust_by_ram` is optional in that volume and enabled, it will disable it. If
 that is not enough and snapshots are optional but enabled, it will disable them
 and try again (assuming Btrfs is being used). If that's still not enough, it
 will disable the whole volume if it's optional.
