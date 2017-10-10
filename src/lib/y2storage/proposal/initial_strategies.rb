@@ -28,5 +28,6 @@ module Y2Storage
   end
 end
 
+require "y2storage/proposal/initial_strategies/base"
 require "y2storage/proposal/initial_strategies/legacy"
-# require "y2storage/proposal/initial_strategies/ng"
+require "y2storage/proposal/initial_strategies/ng"

@@ -64,46 +64,64 @@ module Y2Storage
       # @return [GuidedProposal]
       def initial(settings: nil, devicegraph: nil, disk_analyzer: nil)
         # Try proposal with initial settings
-        current_settings = settings || ProposalSettings.new_for_current_product
-        log.info("Trying proposal with initial settings: #{current_settings}")
-        proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
+        # current_settings = settings || ProposalSettings.new_for_current_product
+        # log.info("Trying proposal with initial settings: #{current_settings}")
+        # proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
 
-        # Try proposal without home
-        if proposal.failed? && current_settings.use_separate_home
-          current_settings.use_separate_home = false
-          log.info("Trying proposal without home: #{current_settings}")
-          proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
-        end
+        # # Try proposal without home
+        # if proposal.failed? && current_settings.use_separate_home
+        #   current_settings.use_separate_home = false
+        #   log.info("Trying proposal without home: #{current_settings}")
+        #   proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
+        # end
 
-        # Try proposal without snapshots
-        if proposal.failed? && current_settings.snapshots_active?
-          current_settings.use_snapshots = false
-          log.info("Trying proposal without home neither snapshots: #{current_settings}")
-          proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
-        end
+        # # Try proposal without snapshots
+        # if proposal.failed? && current_settings.snapshots_active?
+        #   current_settings.use_snapshots = false
+        #   log.info("Trying proposal without home neither snapshots: #{current_settings}")
+        #   proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
+        # end
 
-        proposal
+        # proposal
+
+        settings ||= ProposalSettings.new_for_current_product
+
+        strategy = initial_strategy(settings)
+
+        strategy.initial_proposal(
+          settings: settings,
+          devicegraph: devicegraph,
+          disk_analyzer: disk_analyzer
+        )
       end
 
     private
+
+      def initial_strategy(settings)
+        if settings.format == ProposalSettings::LEGACY_FORMAT
+          Proposal::InitialStrategies::Legacy
+        else
+          Proposal::InitialStrategies::Ng
+        end
+      end
 
       # Try a proposal with specific settings. Always returns the proposal, even
       # when it is not possible to make a valid one. In that case, the resulting
       # proposal will not have devices.
       #
       # @return [GuidedProposal]
-      def try_proposal(settings, devicegraph, disk_analyzer)
-        proposal = GuidedProposal.new(
-          settings:      settings,
-          devicegraph:   devicegraph,
-          disk_analyzer: disk_analyzer
-        )
-        proposal.propose
-        proposal
-      rescue Y2Storage::Error => e
-        log.error("Proposal failed: #{e.inspect}")
-        proposal
-      end
+      # def try_proposal(settings, devicegraph, disk_analyzer)
+      #   proposal = GuidedProposal.new(
+      #     settings:      settings,
+      #     devicegraph:   devicegraph,
+      #     disk_analyzer: disk_analyzer
+      #   )
+      #   proposal.propose
+      #   proposal
+      # rescue Y2Storage::Error => e
+      #   log.error("Proposal failed: #{e.inspect}")
+      #   proposal
+      # end
     end
 
     # Constructor

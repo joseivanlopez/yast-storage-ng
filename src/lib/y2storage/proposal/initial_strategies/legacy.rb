@@ -19,16 +19,13 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require "yast"
-require "y2storage/proposal_settings"
-require "y2storage/guided_proposal"
-require "y2storage/exceptions"
+require "y2storage/proposal/initial_strategies/base"
 
 module Y2Storage
   module Proposal
     module InitialStrategies
       # Class to calculate a storage proposal to install the system
-      class Legacy
+      class Legacy < Base
         # Calculates the initial proposal
         #
         # If a proposal is not possible by honoring current settings, other settings
@@ -64,26 +61,6 @@ module Y2Storage
             proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
           end
 
-          proposal
-        end
-
-      private
-
-        # Try a proposal with specific settings. Always returns the proposal, even
-        # when it is not possible to make a valid one. In that case, the resulting
-        # proposal will not have devices.
-        #
-        # @return [GuidedProposal]
-        def try_proposal(settings, devicegraph, disk_analyzer)
-          proposal = GuidedProposal.new(
-            settings:      settings,
-            devicegraph:   devicegraph,
-            disk_analyzer: disk_analyzer
-          )
-          proposal.propose
-          proposal
-        rescue Y2Storage::Error => e
-          log.error("Proposal failed: #{e.inspect}")
           proposal
         end
       end
