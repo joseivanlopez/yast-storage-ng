@@ -127,10 +127,6 @@ describe Y2Storage::Proposal::DevicesPlannerStrategies::Ng do
           expect(planned_devices).to include(an_object_having_attributes(mount_point: mount_point))
         end
 
-        it "plans a device with weight according to the <volume> entry" do
-          expect(planned_device.weight).to eq(weight)
-        end
-
         context "and it is proposing a partition-based setup" do
           let(:lvm) { false }
 
@@ -171,6 +167,72 @@ describe Y2Storage::Proposal::DevicesPlannerStrategies::Ng do
             it "plans a plain logical volume" do
               expect(planned_device).to be_a(Y2Storage::Planned::LvmLv)
               expect(planned_device.encrypt?).to eq(false)
+            end
+          end
+        end
+
+        context "when it is adjusting the weight" do
+          it "sets weight value according to <volume> entry" do
+            expect(planned_device.weight).to eq(weight)
+          end
+
+          context "and there is other volume with weight fallback" do
+            let(:home) do
+              {
+                "proposed"      => home_proposed,
+                "mount_point"   => "/home",
+                "fs_type"       => "xfs",
+                "weight"        => home_weight,
+                "desired_size"  => home_desired_size.to_s,
+                "min_size"      => home_min_size.to_s,
+                "max_size"      => home_max_size.to_s,
+                "max_size_lvm"  => home_max_size_lvm.to_s,
+                "fallback_for_weight" => fallback_for_weight
+              }
+            end
+
+            let(:home_proposed) { false }
+
+            let(:home_weight) { 50 }
+
+            let(:home_desired_size) { 10.GiB }
+
+            let(:home_min_size) { 8.GiB }
+
+            let(:home_max_size) { 15.GiB }
+
+            let(:home_max_size_lvm) { 5.GiB }
+
+            let(:fallback_for_weight) { nil }
+
+            let(:volumes) { [volume, home] }
+
+            context "and that volume is proposed" do
+              let(:home_proposed) { true }
+
+              it "sets weight whithout include fallback values" do
+                expect(planned_device.weight).to eq(weight)
+              end
+            end
+
+            context "and that volume is not proposed" do
+              let(:home_proposed) { false }
+
+              context "and the fallback for weight is not the current volume" do
+                let(:fallback_for_weight) { "swap" }
+
+                it "sets weight whithout include fallback values" do
+                  expect(planned_device.weight).to eq(weight)
+                end
+              end
+
+              context "and the fallback for weight is the current volume" do
+                let(:fallback_for_weight) { mount_point }
+
+                it "sets weight taking into account the fallback values" do
+                  expect(planned_device.weight).to eq(weight + home_weight)
+                end
+              end
             end
           end
         end
