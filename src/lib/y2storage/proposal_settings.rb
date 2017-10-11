@@ -264,6 +264,13 @@ module Y2Storage
       ng_format? ? ng_check_root_snapshots : legacy_check_root_snapshots
     end
 
+    def disable_volume(volume)
+      return unless ng_format?
+
+
+
+    end
+
   private
 
     DELETE_MODES = [:none, :all, :ondemand]

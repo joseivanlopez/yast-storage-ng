@@ -69,6 +69,7 @@ module Y2Storage
 
               # Try again after disabling the volume
               if proposal.failed? && proposed_active_and_configurable?(volume)
+                # current_settings.disable_volume(volume)
                 volume.proposed = false
                 log.info("Trying proposal after disabling '#{volume.mount_point}'")
                 proposal = try_proposal(current_settings.dup, devicegraph, disk_analyzer)
