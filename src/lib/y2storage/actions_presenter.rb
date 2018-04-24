@@ -51,6 +51,11 @@ module Y2Storage
       Yast::HTML.Para(html_list(items))
     end
 
+    def to_s
+      actions = general_actions + subvolume_actions
+      actions.map(&:sentence).join("\n")
+    end
+
     # Whether the event can be managed by the presenter
     #
     # @return [Boolean]
@@ -92,12 +97,11 @@ module Y2Storage
     end
 
     def general_actions_items
-      actions = sort_actions(general_actions)
-      actions_to_items(actions)
+      actions_to_items(general_actions)
     end
 
     def subvolume_actions_items
-      actions = sort_actions(subvolume_actions)
+      actions = subvolume_actions
 
       return [] if actions.empty?
 
@@ -115,12 +119,14 @@ module Y2Storage
 
     def general_actions
       return [] if actiongraph.nil?
-      actiongraph.compound_actions.select { |a| !a.device_is?(:btrfs_subvolume) }
+      actions = actiongraph.compound_actions.select { |a| !a.device_is?(:btrfs_subvolume) }
+      sort_actions(actions)
     end
 
     def subvolume_actions
       return [] if actiongraph.nil?
-      actiongraph.compound_actions.select { |a| a.device_is?(:btrfs_subvolume) }
+      actions = actiongraph.compound_actions.select { |a| a.device_is?(:btrfs_subvolume) }
+      sort_actions(actions)
     end
 
     def sort_actions(actions)
