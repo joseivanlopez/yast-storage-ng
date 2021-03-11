@@ -1,4 +1,4 @@
-# Copyright (c) [2017] SUSE LLC
+# Copyright (c) [2017-2021] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -196,6 +196,23 @@ module Y2Storage
           new_size
         end
       log.info "Size of #{name} set to #{size}"
+    end
+
+    # Rounded-down size according to the extent size and the number of stripes
+    #
+    # When a logical volume is created, libstorage-ng calculates the number of extents for the new
+    # logical volume. As result, the size is rounded-down to the extent size. But then, lvcreate command
+    # rounds up the number of extents to make it multiple of the number of stripes. This could lead to a
+    # number of extents that exceeds the total number of extents from the volume group.
+    #
+    # @return [DiskSize]
+    def rounded_size
+      return size if size.zero?
+
+      rounded_extents = size.to_i / lvm_vg.extent_size.to_i
+      rounded_extents -= (rounded_extents % stripes) if stripes.size > 0
+
+      rounded_extents * lvm_vg.extent_size
     end
 
     protected
