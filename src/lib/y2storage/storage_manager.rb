@@ -272,7 +272,7 @@ module Y2Storage
     # @param proposal [GuidedProposal]
     def proposal=(proposal)
       if proposal.failed?
-        copy_to_staging(probed)
+        copy_to_staging(proposal.initial_devicegraph)
       else
         copy_to_staging(proposal.devices)
       end
