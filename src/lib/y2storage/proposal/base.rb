@@ -110,13 +110,14 @@ module Y2Storage
         proposed? && devices.nil?
       end
 
+      # @return [Devicegraph]
+      attr_reader :initial_devicegraph
+
       private
 
       # Disk analyzer used to analyze the initial devicegraph
       # @return [DiskAnalyzer]
       attr_reader :disk_analyzer
-      # @return [Devicegraph]
-      attr_reader :initial_devicegraph
 
       # @!method calculate_proposal
       #   Really calculates the proposal. It must be defined by derived classes.
